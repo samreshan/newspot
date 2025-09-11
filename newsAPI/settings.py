@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-k1c=7y)f2lo2-04@du(++w(+3d^-ep+53nwhc@ef=mpf9#ob6c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-DJANGO_ALLOWED_HOSTS=newspot-production.up.railway.app
+DJANGO_ALLOWED_HOSTS='newspot-production.up.railway.app'
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1").split(" ")
 
