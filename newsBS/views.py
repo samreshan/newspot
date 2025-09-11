@@ -1,10 +1,66 @@
 from django.shortcuts import render
+from django.http import Http404
 import requests
 from bs4 import BeautifulSoup
 
 # ========================
 # SCRAPING FUNCTIONS
 # ========================
+
+def news_detail(request):
+    url = request.GET.get("url")
+    if not url:
+        raise Http404("Article not found")
+
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        response.encoding = 'utf-8'  # <-- force UTF-8
+    except Exception:
+        raise Http404("Unable to fetch article")
+
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    # Headline
+    title_tag = soup.select_one("h1.entry-title")
+    title = title_tag.get_text(strip=True) if title_tag else "No Title"
+
+    # Time
+    time_tag = soup.select_one(".ok-news-post-hour span, time")
+    time = time_tag.get_text(strip=True) if time_tag else "Unknown time"
+
+    # Author
+    author_tag = soup.select_one(".ok-news-author .author-name, .author, .post-author")
+    author = author_tag.get_text(strip=True) if author_tag else "Unknown author"
+
+    # Main content
+    content_div = soup.select_one(".ok18-single-post-content-wrap")
+    paragraphs = []
+    if content_div:
+        paragraphs = [
+            p.get_text(strip=True)
+            for p in content_div.select("p")
+            if len(p.get_text(strip=True)) > 50
+        ]
+
+    # AI Summary
+    summary_items = [
+        li.get_text(strip=True)
+        for li in soup.select(".ai_summary_block_list li")
+    ]
+
+    context = {
+        "title": title,
+        "time": time,
+        "author": author,
+        "paragraphs": paragraphs,
+        "summary": summary_items,
+        "source_url": url,
+    }
+
+    return render(request, "newsBS/news_detail.html", context)
+
+
 
 def scrape_ronbpost():
     url = "https://www.ronbpost.com/"
