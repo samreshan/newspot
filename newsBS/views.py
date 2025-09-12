@@ -1,7 +1,12 @@
 from django.shortcuts import render
-from django.http import Http404
+from django.http import Http404, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 import requests
 from bs4 import BeautifulSoup
+import os
+import json
+
+
 
 # ========================
 # SCRAPING FUNCTIONS
@@ -166,6 +171,36 @@ def scrape_hamropatro():
     except Exception as e:
         print("HamroPatro scrape error:", e)
     return news_list
+
+
+API_KEY = os.getenv("GEMINI_API_KEY")  # set this in your environment
+
+@csrf_exempt
+def ai_helper(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        prompt = data.get("prompt", "")
+
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+        headers = {
+            "Content-Type": "application/json",
+            "X-goog-api-key": API_KEY,
+        }
+        payload = {
+            "contents": [
+                {"parts": [{"text": prompt}]}
+            ]
+        }
+
+        try:
+            r = requests.post(url, headers=headers, json=payload)
+            r.raise_for_status()
+            result = r.json()
+            text = result["candidates"][0]["content"]["parts"][0]["text"]
+            return JsonResponse({"text": text})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
 
 
 

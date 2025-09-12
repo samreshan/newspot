@@ -1,512 +1,109 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ne">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ title }} | News Pot</title>
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-:root {
-  --primary-color: #ee517bff;
-  --secondary-color: #f8fafc;
-  --text-primary: #0f1115ff;
-  --text-secondary: #191e25ff;
-  --border-color: #e2e8f0;
-  --hover-color: #f1f5f9;
-  --success-color: #12ca8cff;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-}
-
-body {
-  font-family: 'Noto Sans Devanagari', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--secondary-color);
-  color: var(--text-primary);
-  line-height: 1.7;
-  font-size: 18px;
-  min-height: 100vh;
-}
-
-.container {
-  max-width: 720px;
-  margin: 0 auto;
-  background: white;
-  min-height: 100vh;
-  box-shadow: 0 0 0 1px var(--border-color);
-}
-
-/* Clean pot header */
-.pot-header {
-  background: linear-gradient(180deg, var(--primary-color) 0%, #fa6ca7ff 100%);
-  padding: 3rem 2rem 2rem;
-  position: relative;
-  color: white;
-}
-
-.pot-header::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: white;
-  border-radius: 20px 20px 0 0;
-}
-
-/* Minimal brewing indicator */
-.brewing-indicator {
-  position: absolute;
-  top: 1rem;
-  right: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.875rem;
-}
-
-.steam-dots {
-  display: flex;
-  gap: 2px;
-}
-
-.dot {
-  width: 4px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 50%;
-  animation: steam 2s ease-in-out infinite;
-}
-
-.dot:nth-child(1) { animation-delay: 0s; }
-.dot:nth-child(2) { animation-delay: 0.3s; }
-.dot:nth-child(3) { animation-delay: 0.6s; }
-
-@keyframes steam {
-  0%, 100% { opacity: 0.3; transform: translateY(0); }
-  50% { opacity: 1; transform: translateY(-3px); }
-}
-
-.article-title {
-  font-size: clamp(1.5rem, 4vw, 2rem);
-  font-weight: 700;
-  line-height: 1.3;
-  margin-bottom: 1rem;
-}
-
-.article-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.source-link {
-  color: rgba(255, 255, 255, 0.9);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  transition: border-color 0.3s ease;
-}
-
-.source-link:hover {
-  border-color: rgba(255, 255, 255, 0.8);
-}
-
-/* Main content area */
-.content-area {
-  padding: 2rem;
-}
-
-/* AI Summary */
-.summary-section {
-  background: var(--secondary-color);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  position: relative;
-}
-
-.summary-section::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: var(--primary-color);
-  border-radius: 4px 0 0 4px;
-}
-
-.summary-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  color: var(--text-secondary);
-}
-
-.summary-icon {
-  width: 20px;
-  height: 20px;
-  background: var(--primary-color);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: white;
-  font-weight: 600;
-}
-
-.summary-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-.summary-list {
-  list-style: none;
-}
-
-.summary-item {
-  position: relative;
-  padding-left: 1rem;
-  margin-bottom: 0.75rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-.summary-item::before {
-  content: '•';
-  position: absolute;
-  left: 0;
-  color: var(--primary-color);
-  font-weight: bold;
-}
-
-.summary-item:last-child {
-  margin-bottom: 0;
-}
-
-/* Article content */
-.article-content {
-  margin-top: 2rem;
-}
-
-.content-paragraph {
-  font-size: 1.125rem;
-  line-height: 1.8;
-  margin-bottom: 1.5rem;
-  color: var(--text-primary);
-  transition: color 0.3s ease;
-}
-
-.content-paragraph:hover {
-  color: var(--text-secondary);
-}
-
-.content-paragraph:first-child {
-  font-size: 1.25rem;
-  color: var(--text-primary);
-}
-
-.content-paragraph:first-child::first-letter {
-  float: left;
-  font-size: 3.5rem;
-  line-height: 3rem;
-  padding-right: 0.5rem;
-  margin-top: 0.1rem;
-  color: var(--primary-color);
-  font-weight: 700;
-}
-
-/* Links in content */
-.article-content a {
-  color: var(--primary-color);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.3s ease;
-}
-
-.article-content a:hover {
-  border-color: var(--primary-color);
-}
-
-/* Reading progress */
-.reading-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 0%;
-  height: 2px;
-  background: var(--primary-color);
-  z-index: 1000;
-  transition: width 0.2s ease;
-}
-
-/* Subtle scroll indicator */
-.scroll-indicator {
-  position: fixed;
-  right: 2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2px;
-  height: 100px;
-  background: var(--border-color);
-  border-radius: 1px;
-}
-
-.scroll-thumb {
-  width: 100%;
-  height: 20px;
-  background: var(--primary-color);
-  border-radius: 1px;
-  transition: all 0.2s ease;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .container {
-    box-shadow: none;
-  }
-  
-  .pot-header {
-    padding: 2rem 1.5rem 1.5rem;
-  }
-  
-  .brewing-indicator {
-    right: 1.5rem;
-  }
-  
-  .content-area {
-    padding: 1.5rem;
-  }
-  
-  .summary-section {
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .article-meta {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  
-  .scroll-indicator {
-    display: none;
-  }
-}
-
-@media (max-width: 480px) {
-  body {
-    font-size: 16px;
-  }
-  
-  .pot-header {
-    padding: 1.5rem 1rem;
-  }
-  
-  .content-area {
-    padding: 1rem;
-  }
-  
-  .content-paragraph {
-    font-size: 1rem;
-  }
-  
-  .content-paragraph:first-child {
-    font-size: 1.125rem;
-  }
-  
-  .content-paragraph:first-child::first-letter {
-    font-size: 2.5rem;
-    line-height: 2.2rem;
-  }
-}
-
-/* Print styles */
-@media print {
-  .container {
-    box-shadow: none;
-  }
-  
-  .pot-header {
-    background: white;
-    color: black;
-  }
-  
-  .reading-progress,
-  .scroll-indicator,
-  .brewing-indicator {
-    display: none;
-  }
-}
-
-/* Focus styles */
-.source-link:focus {
-  outline: 2px solid rgba(255, 255, 255, 0.8);
-  outline-offset: 2px;
-}
-
-.article-content a:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* Accessibility */
-@media (prefers-contrast: high) {
-  :root {
-    --text-primary: #000000;
-    --text-secondary: #333333;
-    --border-color: #000000;
-  }
-}
-</style>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'newsBS/css/detail.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
 </head>
 <body>
-  <!-- Reading Progress -->
-  <div class="reading-progress" id="readingProgress"></div>
-  
-  <!-- Scroll Indicator -->
-  <div class="scroll-indicator">
-    <div class="scroll-thumb" id="scrollThumb"></div>
-  </div>
-  
-  <div class="container">
-    <!-- Clean Header with pot reference -->
-    <header class="pot-header">
-      <div class="brewing-indicator">
-        <div class="steam-dots">
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot"></div>
-        </div>
-        <span>Brewing</span>
-      </div>
-      
-      <h1 class="article-title">{{ title }}</h1>
-      
-      <div class="article-meta">
-        <div class="meta-item">
-          <span>Author:</span>
-          <span>{{ author }}</span>
-        </div>
-        <div class="meta-item">
-          <span>Date:</span>
-          <span>{{ time }}</span>
-        </div>
-        <a href="{{ source_url }}" target="_blank" class="source-link">
-          View Original →
-        </a>
-      </div>
-    </header>
+<!-- Reading Progress -->
+<div class="reading-progress" id="readingProgress"></div>
 
-    <!-- Main Content -->
-    <div class="content-area">
-      <!-- AI Summary -->
-      {% if summary %}
-      <div class="summary-section">
-        <div class="summary-header">
-          <div class="summary-icon">AI</div>
-          <h2 class="summary-title">Key Ingredients</h2>
-        </div>
-        <ul class="summary-list">
-          {% for item in summary %}
-          <li class="summary-item">{{ item }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endif %}
+<!-- Floating Action Buttons -->
+<div class="floating-actions" id="floatingActions">
+  <button class="action-button" id="translateBtn" onclick="translateToEnglish()">
+    <span class="spinner"></span>
+    <span class="button-text">
+      <span class="button-icon">🌐</span>
+      Translate
+    </span>
+  </button>
+  <button class="action-button" id="summarizeBtn" onclick="summarizeArticle()">
+    <span class="spinner"></span>
+    <span class="button-text">
+      <span class="button-icon">📄</span>
+      Summarize
+    </span>
+  </button>
+</div>
 
-      <!-- Article Content -->
-      <div class="article-content">
-        {% for para in paragraphs %}
-        <p class="content-paragraph">{{ para }}</p>
-        {% endfor %}
-      </div>
+<div class="container">
+<!-- Clean Header with pot reference -->
+<header class="pot-header">
+<div class="brewing-indicator">
+<div class="steam-dots">
+<div class="dot"></div>
+<div class="dot"></div>
+<div class="dot"></div>
+</div>
+<span>Brewing</span>
+</div>
+<h1 class="article-title">{{ title }}</h1>
+<div class="article-meta">
+<div class="meta-item">
+<span>Author:</span>
+<span>{{ author }}</span>
+</div>
+<div class="meta-item">
+<span>Date:</span>
+<span>{{ time }}</span>
+</div>
+<a href="{{ source_url }}" target="_blank" class="source-link">
+ View Original →
+</a>
+</div>
+</header>
+<!-- Main Content -->
+<div class="content-area">
+<!-- AI Summary -->
+{% if summary %}
+<div class="summary-section">
+<div class="summary-header">
+<div class="summary-icon">AI</div>
+<h2 class="summary-title">Key Ingredients</h2>
+</div>
+<ul class="summary-list">
+{% for item in summary %}
+<li class="summary-item">{{ item }}</li>
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+<!-- Article Content -->
+<div class="article-content">
+{% for para in paragraphs %}
+<p class="content-paragraph">{{ para }}</p>
+{% endfor %}
+</div>
+</div>
+</div>
+
+<!-- Enhanced AI Output Box -->
+<div class="ai-output" id="aiOutput">
+  <div class="ai-output-header">
+    <div class="ai-output-title">
+      <div class="ai-icon">AI</div>
+      <span id="aiOutputTitle">AI Response</span>
     </div>
+    <button class="close-button" onclick="closeAIOutput()">&times;</button>
   </div>
-
-  <script>
-    // Reading progress
-    window.addEventListener('scroll', () => {
-      const content = document.querySelector('.article-content');
-      if (!content) return;
-      
-      const scrolled = window.scrollY;
-      const contentTop = content.offsetTop;
-      const contentHeight = content.offsetHeight;
-      const windowHeight = window.innerHeight;
-      
-      const progress = Math.max(0, Math.min(100, 
-        ((scrolled - contentTop + windowHeight) / contentHeight) * 100
-      ));
-      
-      document.getElementById('readingProgress').style.width = progress + '%';
-    });
-
-    // Scroll indicator
-    window.addEventListener('scroll', () => {
-      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-      const scrolled = window.scrollY;
-      const progress = (scrolled / scrollable) * 80; // 80% of indicator height
-      
-      const scrollThumb = document.getElementById('scrollThumb');
-      if (scrollThumb) {
-        scrollThumb.style.transform = `translateY(${progress}px)`;
-      }
-    });
-
-    // Smooth scrolling
-    document.documentElement.style.scrollBehavior = 'smooth';
-
-    // Subtle paragraph highlight on scroll
-    const observerOptions = {
-      root: null,
-      rootMargin: '-20% 0px -70% 0px',
-      threshold: 0
-    };
-
-    const paragraphObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.style.color = 'var(--text-primary)';
-        } else {
-          entry.target.style.color = 'var(--text-secondary)';
-        }
-      });
-    }, observerOptions);
-
-    // Observe paragraphs once DOM is loaded
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.content-paragraph').forEach(p => {
-        paragraphObserver.observe(p);
-      });
-    });
-  </script>
+  <div class="ai-content">
+    <div class="loading-animation" id="loadingAnimation">
+      <div class="loading-dots">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
+      <span>Generating response...</span>
+    </div>
+    <div class="ai-result" id="aiResult"></div>
+  </div>
+</div>
+<script src="{% static 'newsBS/js/detail.js' %}"></script>
 </body>
 </html>
