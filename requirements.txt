@@ -2,4 +2,4 @@ Django>=4.2
 requests
 beautifulsoup4
 gunicorn
-whitenoise==7.1.1
+whitenoise
