@@ -48,7 +48,9 @@
         <h2 class="section-title">Online Khabar</h2>
         <ul class="news-list">
           {% for article in onlinekhabar %}
-          <li class="news-item unread" data-article-url="{{ article.link }}" data-supports-read-state="true">
+
+          <li class="news-item unread" data-article-url="{{ article.link }}">
+
             <a href="{% url 'news_detail' %}?url={{ article.link }}" class="news-link" data-article-url="{{ article.link }}" onclick="markAsRead(this);" target="_blank">
               <div class="news-content">
                 <div class="news-title">{{ article.title }}</div>
@@ -73,9 +75,10 @@
       <div id="ronb" class="tab-content">
         <h2 class="section-title">Routine of Nepal Banda</h2>
         <ul class="news-list">
-          {% for article in ronb %}
-          <li class="news-item" data-article-url="{{ article.link }}">
-            <a href="{{ article.link }}" class="news-link" target="_blank">
+
+          <li class="news-item unread" data-article-url="{{ article.link }}">
+            <a href="{{ article.link }}" class="news-link" data-article-url="{{ article.link }}" target="_blank">
+
               <div class="news-content">
                 <div class="news-title">{{ article.title }}</div>
                 <div class="news-meta">
@@ -100,8 +103,9 @@
         <h2 class="section-title">Hamro Patro</h2>
         <ul class="news-list">
           {% for article in hp %}
-          <li class="news-item" data-article-url="{{ article.link }}">
-            <a href="{{ article.link }}" class="news-link" target="_blank">
+
+          <li class="news-item unread" data-article-url="{{ article.link }}">
+            <a href="{{ article.link }}" class="news-link" data-article-url="{{ article.link }}" target="_blank">
               <div class="news-content">
                 <div class="news-title">{{ article.title }}</div>
                 <div class="news-meta">
