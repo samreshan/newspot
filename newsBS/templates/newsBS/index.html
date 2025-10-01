@@ -4,11 +4,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="refresh" content="80">
 <title>Samrey's Newspot</title>
 <link rel="stylesheet" href="{% static 'newsBS/css/index.css' %}">
 </head>
-<body>
+<body
+  data-fetch-url="{% url 'fetch_latest_headlines' %}"
+  data-news-detail-url="{% url 'news_detail' %}"
+  data-fetch-interval="80000"
+>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -45,7 +48,9 @@
         <h2 class="section-title">Online Khabar</h2>
         <ul class="news-list">
           {% for article in onlinekhabar %}
+
           <li class="news-item unread" data-article-url="{{ article.link }}">
+
             <a href="{% url 'news_detail' %}?url={{ article.link }}" class="news-link" data-article-url="{{ article.link }}" onclick="markAsRead(this);" target="_blank">
               <div class="news-content">
                 <div class="news-title">{{ article.title }}</div>
@@ -70,9 +75,10 @@
       <div id="ronb" class="tab-content">
         <h2 class="section-title">Routine of Nepal Banda</h2>
         <ul class="news-list">
-          {% for article in ronb %}
+
           <li class="news-item unread" data-article-url="{{ article.link }}">
             <a href="{{ article.link }}" class="news-link" data-article-url="{{ article.link }}" target="_blank">
+
               <div class="news-content">
                 <div class="news-title">{{ article.title }}</div>
                 <div class="news-meta">
@@ -97,6 +103,7 @@
         <h2 class="section-title">Hamro Patro</h2>
         <ul class="news-list">
           {% for article in hp %}
+
           <li class="news-item unread" data-article-url="{{ article.link }}">
             <a href="{{ article.link }}" class="news-link" data-article-url="{{ article.link }}" target="_blank">
               <div class="news-content">

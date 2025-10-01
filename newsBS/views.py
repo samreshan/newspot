@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import Http404, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET
 import requests
 from bs4 import BeautifulSoup
 import os
@@ -202,6 +203,15 @@ def ai_helper(request):
             return JsonResponse({"error": str(e)}, status=500)
 
 
+@require_GET
+def fetch_latest_headlines(request):
+    """Return the most recent scrape results for each supported news source."""
+    payload = {
+        "ronb": scrape_ronbpost(),
+        "onlinekhabar": scrape_onlinekhabar(),
+        "hp": scrape_hamropatro(),
+    }
+    return JsonResponse(payload)
 
 
 # ========================
