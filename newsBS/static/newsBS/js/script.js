@@ -44,30 +44,46 @@ document.addEventListener("DOMContentLoaded", function() {
 // Mark article as read
 function markAsRead(linkElement) {
     const newsItem = linkElement.closest('.news-item');
-    const articleUrl = newsItem.getAttribute('data-article-url');
-    
+    if (!newsItem) {
+        return;
+    }
+
+    const articleUrl = newsItem.getAttribute('data-article-url') || linkElement.getAttribute('data-article-url');
+    if (!articleUrl) {
+        return;
+    }
+
     // Update visual state
     newsItem.classList.remove('unread');
     newsItem.classList.add('read');
-    
+
     // Save to localStorage
     let readArticles = JSON.parse(localStorage.getItem("readArticles")) || [];
     if (!readArticles.includes(articleUrl)) {
-    readArticles.push(articleUrl);
-    localStorage.setItem("readArticles", JSON.stringify(readArticles));
+        readArticles.push(articleUrl);
+        localStorage.setItem("readArticles", JSON.stringify(readArticles));
     }
 }
 
 // Initialize read/unread states from localStorage
 function initializeReadStates() {
     const readArticles = JSON.parse(localStorage.getItem("readArticles")) || [];
-    
+
     document.querySelectorAll('.news-item').forEach(item => {
-    const articleUrl = item.getAttribute('data-article-url');
-    if (readArticles.includes(articleUrl)) {
-        item.classList.remove('unread');
-        item.classList.add('read');
-    }
+        const linkElement = item.querySelector('.news-link');
+        const articleUrl = item.getAttribute('data-article-url') || (linkElement ? linkElement.getAttribute('data-article-url') : null);
+
+        if (!articleUrl) {
+            return;
+        }
+
+        if (readArticles.includes(articleUrl)) {
+            item.classList.remove('unread');
+            item.classList.add('read');
+        } else {
+            item.classList.remove('read');
+            item.classList.add('unread');
+        }
     });
 }
 
