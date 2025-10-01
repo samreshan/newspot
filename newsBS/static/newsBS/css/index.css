@@ -197,6 +197,15 @@ body {
   transform-origin: bottom;
 }
 
+.news-item.unread::before {
+  transform: scaleY(1);
+  background: linear-gradient(to bottom, var(--primary-color), var(--primary-color-dark));
+}
+
+.news-item.read::before {
+  transform: scaleY(0);
+}
+
 .news-item:hover {
   background-color: var(--hover-color);
   transform: translateX(8px);
@@ -230,6 +239,25 @@ body {
   margin-bottom: 0.5rem;
   transition: color 0.3s ease;
   word-wrap: break-word;
+}
+
+.news-item.unread .news-title {
+  color: var(--primary-color-dark);
+  font-weight: 700;
+}
+
+.news-item.read .news-title {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.news-item.read .news-meta {
+  color: rgba(74, 85, 111, 0.7);
+}
+
+.news-item.read {
+  background-color: rgba(242, 244, 248, 0.4);
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .news-item:hover .news-title {
