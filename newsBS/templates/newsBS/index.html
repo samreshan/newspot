@@ -7,7 +7,11 @@
 <title>Samrey's Newspot</title>
 <link rel="stylesheet" href="{% static 'newsBS/css/index.css' %}">
 </head>
-<body data-fetch-url="{% url 'fetch_latest_headlines' %}" data-news-detail-url="{% url 'news_detail' %}" data-fetch-interval="80000">
+<body
+  data-fetch-url="{% url 'fetch_latest_headlines' %}"
+  data-news-detail-url="{% url 'news_detail' %}"
+  data-fetch-interval="80000"
+>
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -44,7 +48,7 @@
         <h2 class="section-title">Online Khabar</h2>
         <ul class="news-list">
           {% for article in onlinekhabar %}
-          <li class="news-item unread" data-article-url="{{ article.link }}">
+          <li class="news-item unread" data-article-url="{{ article.link }}" data-supports-read-state="true">
             <a href="{% url 'news_detail' %}?url={{ article.link }}" class="news-link" data-article-url="{{ article.link }}" onclick="markAsRead(this);" target="_blank">
               <div class="news-content">
                 <div class="news-title">{{ article.title }}</div>

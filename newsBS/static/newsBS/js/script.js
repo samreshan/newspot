@@ -9,10 +9,32 @@ function showTab(tabId, tabElement) {
     document.getElementById(tabId).classList.add('active');
 }
 
-const FETCH_INTERVAL = parseInt(document.body.dataset.fetchInterval || '80000', 10);
-const FETCH_URL = document.body.dataset.fetchUrl || '';
-const NEWS_DETAIL_BASE = document.body.dataset.newsDetailUrl || '';
-let seenLinksCache = new Set(JSON.parse(localStorage.getItem('seenNews')) || []);
+const DEFAULT_FETCH_INTERVAL = 80000;
+const bodyElement = document.body;
+const fetchIntervalAttr = bodyElement ? bodyElement.dataset.fetchInterval : undefined;
+const parsedInterval = parseInt(fetchIntervalAttr, 10);
+const FETCH_INTERVAL = Number.isFinite(parsedInterval) ? parsedInterval : DEFAULT_FETCH_INTERVAL;
+const FETCH_URL = bodyElement ? bodyElement.dataset.fetchUrl || '' : '';
+const NEWS_DETAIL_BASE = bodyElement ? bodyElement.dataset.newsDetailUrl || '' : '';
+const SEEN_NEWS_STORAGE_KEY = 'seenNews';
+const READ_ARTICLES_STORAGE_KEY = 'readArticles';
+
+function readArrayFromStorage(key) {
+    try {
+        const raw = localStorage.getItem(key);
+        if (!raw) {
+            return [];
+        }
+
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        console.warn(`Failed to parse stored data for "${key}"`, error);
+        return [];
+    }
+}
+
+let seenLinksCache = new Set(readArrayFromStorage(SEEN_NEWS_STORAGE_KEY));
 let initialUpdate = true;
 
 // News notification system
@@ -50,8 +72,12 @@ function applyUpdates(payload) {
         transformLink: createDetailLink,
         supportsReadState: true,
     });
-    newCount += updateSource('ronb', payload.ronb);
-    newCount += updateSource('hp', payload.hp);
+    newCount += updateSource('ronb', payload.ronb, {
+        itemClassNames: ['news-item'],
+    });
+    newCount += updateSource('hp', payload.hp, {
+        itemClassNames: ['news-item'],
+    });
     return newCount;
 }
 
@@ -65,6 +91,12 @@ function updateSource(sectionId, articles, options = {}) {
     if (!list) {
         return 0;
     }
+
+    const {
+        transformLink,
+        supportsReadState = false,
+        itemClassNames = supportsReadState ? ['news-item', 'unread'] : ['news-item'],
+    } = options;
 
     const existingLinks = new Set(
         Array.from(list.querySelectorAll('.news-item'))
@@ -86,16 +118,19 @@ function updateSource(sectionId, articles, options = {}) {
         }
 
         const listItem = document.createElement('li');
-        listItem.className = 'news-item unread';
+        listItem.className = itemClassNames.join(' ');
         listItem.dataset.articleUrl = articleLink;
+        if (supportsReadState) {
+            listItem.dataset.supportsReadState = 'true';
+        }
 
         const anchor = document.createElement('a');
         anchor.className = 'news-link';
         anchor.target = '_blank';
         anchor.rel = 'noopener noreferrer';
-        anchor.href = options.transformLink ? options.transformLink(articleLink) : articleLink;
+        anchor.href = transformLink ? transformLink(articleLink) : articleLink;
 
-        if (options.supportsReadState) {
+        if (supportsReadState) {
             anchor.dataset.articleUrl = articleLink;
             anchor.addEventListener('click', () => markAsRead(anchor));
         }
@@ -189,10 +224,16 @@ function getArticleUrlFromItem(item) {
         return null;
     }
 
-    return (
-        item.dataset.articleUrl ||
-        (item.querySelector('.news-link') && (item.querySelector('.news-link').dataset.articleUrl || item.querySelector('.news-link').getAttribute('href')))
-    );
+    if (item.dataset && item.dataset.articleUrl) {
+        return item.dataset.articleUrl;
+    }
+
+    const linkElement = item.querySelector('.news-link');
+    if (!linkElement) {
+        return null;
+    }
+
+    return linkElement.dataset.articleUrl || linkElement.getAttribute('href');
 }
 
 function updateSeenNewsCacheFromDom() {
@@ -201,7 +242,7 @@ function updateSeenNewsCacheFromDom() {
         .filter(Boolean);
 
     seenLinksCache = new Set(allLinks);
-    localStorage.setItem('seenNews', JSON.stringify(Array.from(seenLinksCache)));
+    localStorage.setItem(SEEN_NEWS_STORAGE_KEY, JSON.stringify(Array.from(seenLinksCache)));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -222,25 +263,29 @@ function markAsRead(linkElement) {
     }
 
     const articleUrl = linkElement.dataset.articleUrl || newsItem.dataset.articleUrl || linkElement.getAttribute('href');
-    if (!articleUrl) {
+    if (!articleUrl || !itemSupportsReadState(newsItem)) {
         return;
     }
 
     newsItem.classList.remove('unread');
     newsItem.classList.add('read');
 
-    let readArticles = JSON.parse(localStorage.getItem('readArticles')) || [];
+    const readArticles = readArrayFromStorage(READ_ARTICLES_STORAGE_KEY);
     if (!readArticles.includes(articleUrl)) {
         readArticles.push(articleUrl);
-        localStorage.setItem('readArticles', JSON.stringify(readArticles));
+        localStorage.setItem(READ_ARTICLES_STORAGE_KEY, JSON.stringify(readArticles));
     }
 }
 
 // Initialize read/unread states from localStorage
 function initializeReadStates() {
-    const readArticles = JSON.parse(localStorage.getItem('readArticles')) || [];
+    const readArticles = readArrayFromStorage(READ_ARTICLES_STORAGE_KEY);
 
     document.querySelectorAll('.news-item').forEach(item => {
+        if (!itemSupportsReadState(item)) {
+            return;
+        }
+
         const articleUrl = getArticleUrlFromItem(item);
         if (!articleUrl) {
             return;
@@ -254,6 +299,10 @@ function initializeReadStates() {
             item.classList.remove('read');
         }
     });
+}
+
+function itemSupportsReadState(item) {
+    return Boolean(item && item.dataset && item.dataset.supportsReadState === 'true');
 }
 
 function showNewArticlesNotification(count) {
