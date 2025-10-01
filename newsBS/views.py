@@ -202,6 +202,14 @@ def ai_helper(request):
             return JsonResponse({"error": str(e)}, status=500)
 
 
+def fetch_latest_headlines(request):
+    """Return the most recent scrape results for each supported news source."""
+    payload = {
+        "ronb": scrape_ronbpost(),
+        "onlinekhabar": scrape_onlinekhabar(),
+        "hp": scrape_hamropatro(),
+    }
+    return JsonResponse(payload)
 
 
 # ========================
