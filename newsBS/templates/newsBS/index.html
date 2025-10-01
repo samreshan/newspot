@@ -75,7 +75,7 @@
       <div id="ronb" class="tab-content">
         <h2 class="section-title">Routine of Nepal Banda</h2>
         <ul class="news-list">
-
+          {% for article in ronb %}
           <li class="news-item unread" data-article-url="{{ article.link }}">
             <a href="{{ article.link }}" class="news-link" data-article-url="{{ article.link }}" target="_blank">
 
